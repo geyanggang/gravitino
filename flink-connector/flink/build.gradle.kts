@@ -23,12 +23,20 @@ plugins {
 }
 
 repositories {
+  mavenLocal()
+  maven {
+    name = "Central Portal Snapshots"
+    url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+    content {
+      includeGroup("com.datastrato.gravitino")
+    }
+  }
   mavenCentral()
 }
 
 var paimonVersion: String = libs.versions.paimon.get()
 val flinkVersion: String = libs.versions.flink.get()
-val flinkMajorVersion: String = flinkVersion.substringBeforeLast(".")
+val flinkMajorVersion: String = flinkVersion.substringBeforeLast("-")
 
 val icebergVersion: String = libs.versions.iceberg4connector.get()
 
@@ -49,9 +57,9 @@ dependencies {
   compileOnly(project(":clients:client-java-runtime", configuration = "shadow"))
 
   compileOnly("org.apache.iceberg:iceberg-flink-runtime-$flinkMajorVersion:$icebergVersion")
-  compileOnly("org.apache.flink:flink-connector-hive_$scalaVersion:$flinkVersion")
-  compileOnly("org.apache.flink:flink-table-common:$flinkVersion")
-  compileOnly("org.apache.flink:flink-table-api-java:$flinkVersion")
+  compileOnly("com.datastrato.gravitino:flink-connector-hive_$scalaVersion:$flinkVersion")
+  compileOnly("com.datastrato.gravitino:flink-table-common:$flinkVersion")
+  compileOnly("com.datastrato.gravitino:flink-table-api-java:$flinkVersion")
   compileOnly("org.apache.paimon:paimon-flink-1.18:$paimonVersion")
   compileOnly(libs.flinkjdbc)
 
@@ -102,10 +110,10 @@ dependencies {
   testImplementation("org.apache.iceberg:iceberg-core:$icebergVersion")
   testImplementation("org.apache.iceberg:iceberg-hive-metastore:$icebergVersion")
   testImplementation("org.apache.iceberg:iceberg-flink-runtime-$flinkMajorVersion:$icebergVersion")
-  testImplementation("org.apache.flink:flink-connector-hive_$scalaVersion:$flinkVersion")
-  testImplementation("org.apache.flink:flink-table-common:$flinkVersion")
-  testImplementation("org.apache.flink:flink-table-api-java:$flinkVersion")
-  testImplementation("org.apache.flink:flink-sql-gateway:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-connector-hive_$scalaVersion:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-table-common:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-table-api-java:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-sql-gateway:$flinkVersion")
   testImplementation("org.apache.paimon:paimon-flink-$flinkMajorVersion:$paimonVersion")
 
   testImplementation(libs.hive2.exec) {
@@ -168,13 +176,13 @@ dependencies {
     exclude("org.eclipse.jetty.orbit", "javax.servlet")
     exclude("org.slf4j")
   }
-  testImplementation("org.apache.flink:flink-table-api-bridge-base:$flinkVersion") {
+  testImplementation("com.datastrato.gravitino:flink-table-api-bridge-base:$flinkVersion") {
     exclude("commons-cli", "commons-cli")
     exclude("commons-io", "commons-io")
     exclude("com.google.code.findbugs", "jsr305")
   }
-  testImplementation("org.apache.flink:flink-table-planner_$scalaVersion:$flinkVersion")
-  testImplementation("org.apache.flink:flink-test-utils:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-table-planner_$scalaVersion:$flinkVersion")
+  testImplementation("com.datastrato.gravitino:flink-test-utils:$flinkVersion")
 
   testRuntimeOnly(libs.junit.jupiter.engine)
 }

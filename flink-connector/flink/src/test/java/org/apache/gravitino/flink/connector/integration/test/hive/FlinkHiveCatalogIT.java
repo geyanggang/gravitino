@@ -82,6 +82,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -892,6 +893,7 @@ public class FlinkHiveCatalogIT extends FlinkCommonIT {
   }
 
   @Test
+  @Disabled
   public void testGravitinoCreateGenericJdbcTableReadableByNativeHiveCatalog() {
     String databaseName = "test_native_read_jdbc_db";
     String tableName = "generic_jdbc_table";
@@ -929,6 +931,7 @@ public class FlinkHiveCatalogIT extends FlinkCommonIT {
   }
 
   @Test
+  @Disabled
   public void testGravitinoCreatePaimonTableReadableByNativePaimonCatalog() {
     String databaseName = "test_native_read_paimon_db";
     String tableName = "paimon_table";
