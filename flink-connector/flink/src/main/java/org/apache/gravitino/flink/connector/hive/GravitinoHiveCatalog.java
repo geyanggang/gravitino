@@ -19,12 +19,14 @@
 package org.apache.gravitino.flink.connector.hive;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -32,6 +34,7 @@ import org.apache.flink.table.catalog.CatalogPropertiesUtil;
 import org.apache.flink.table.catalog.ObjectPath;
 import org.apache.flink.table.catalog.ResolvedCatalogBaseTable;
 import org.apache.flink.table.catalog.ResolvedCatalogTable;
+import org.apache.flink.table.catalog.TableWritePrivilege;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
 import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
 import org.apache.flink.table.catalog.exceptions.TableAlreadyExistException;
@@ -39,6 +42,7 @@ import org.apache.flink.table.catalog.exceptions.TableNotExistException;
 import org.apache.flink.table.catalog.hive.HiveCatalog;
 import org.apache.flink.table.factories.Factory;
 import org.apache.gravitino.NameIdentifier;
+import org.apache.gravitino.authorization.Privilege;
 import org.apache.gravitino.exceptions.NoSuchSchemaException;
 import org.apache.gravitino.exceptions.NoSuchTableException;
 import org.apache.gravitino.exceptions.TableAlreadyExistsException;
@@ -145,6 +149,27 @@ public class GravitinoHiveCatalog extends BaseCatalog {
           catalog()
               .asTableCatalog()
               .loadTable(NameIdentifier.of(tablePath.getDatabaseName(), tablePath.getObjectName()));
+      if (FlinkGenericTableUtil.isGenericTableWhenLoad(table.properties())) {
+        return FlinkGenericTableUtil.toFlinkGenericTable(table);
+      }
+      return super.toFlinkTable(table, tablePath);
+    } catch (NoSuchTableException e) {
+      throw new TableNotExistException(catalogName(), tablePath, e);
+    } catch (Exception e) {
+      throw new CatalogException(e);
+    }
+  }
+
+  @Override
+  public CatalogBaseTable getTable(ObjectPath tablePath, Set<TableWritePrivilege> writePrivileges)
+      throws TableNotExistException, CatalogException {
+    try {
+      Table table =
+          catalog()
+              .asTableCatalog()
+              .loadTable(
+                  NameIdentifier.of(tablePath.getDatabaseName(), tablePath.getObjectName()),
+                  Sets.newHashSet(Privilege.Name.MODIFY_TABLE));
       if (FlinkGenericTableUtil.isGenericTableWhenLoad(table.properties())) {
         return FlinkGenericTableUtil.toFlinkGenericTable(table);
       }
