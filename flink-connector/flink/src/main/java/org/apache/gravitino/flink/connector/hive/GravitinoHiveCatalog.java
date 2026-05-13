@@ -149,10 +149,7 @@ public class GravitinoHiveCatalog extends BaseCatalog {
           catalog()
               .asTableCatalog()
               .loadTable(NameIdentifier.of(tablePath.getDatabaseName(), tablePath.getObjectName()));
-      if (FlinkGenericTableUtil.isGenericTableWhenLoad(table.properties())) {
-        return FlinkGenericTableUtil.toFlinkGenericTable(table);
-      }
-      return super.toFlinkTable(table, tablePath);
+      return convertToFlinkTable(table, tablePath);
     } catch (NoSuchTableException e) {
       throw new TableNotExistException(catalogName(), tablePath, e);
     } catch (Exception e) {
@@ -163,6 +160,7 @@ public class GravitinoHiveCatalog extends BaseCatalog {
   @Override
   public CatalogBaseTable getTable(ObjectPath tablePath, Set<TableWritePrivilege> writePrivileges)
       throws TableNotExistException, CatalogException {
+    // Gravitino models all Flink write privileges as MODIFY_TABLE.
     try {
       Table table =
           catalog()
@@ -170,15 +168,19 @@ public class GravitinoHiveCatalog extends BaseCatalog {
               .loadTable(
                   NameIdentifier.of(tablePath.getDatabaseName(), tablePath.getObjectName()),
                   Sets.newHashSet(Privilege.Name.MODIFY_TABLE));
-      if (FlinkGenericTableUtil.isGenericTableWhenLoad(table.properties())) {
-        return FlinkGenericTableUtil.toFlinkGenericTable(table);
-      }
-      return super.toFlinkTable(table, tablePath);
+      return convertToFlinkTable(table, tablePath);
     } catch (NoSuchTableException e) {
       throw new TableNotExistException(catalogName(), tablePath, e);
     } catch (Exception e) {
       throw new CatalogException(e);
     }
+  }
+
+  private CatalogBaseTable convertToFlinkTable(Table table, ObjectPath tablePath) {
+    if (FlinkGenericTableUtil.isGenericTableWhenLoad(table.properties())) {
+      return FlinkGenericTableUtil.toFlinkGenericTable(table);
+    }
+    return super.toFlinkTable(table, tablePath);
   }
 
   @Override
