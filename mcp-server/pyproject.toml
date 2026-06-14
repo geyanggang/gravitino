@@ -31,7 +31,7 @@ dependencies = [
     # tracked pydocket/fakeredis compatibility issue is resolved.
     "fakeredis<2.35.0",
     "parameterized>=0.9.0",
-    "pytest>=8.4.1",
+    "pytest>=9.0.3",
     "pylint>=2.20.0",
 ]
 
